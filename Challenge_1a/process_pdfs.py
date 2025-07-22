@@ -1,21 +1,21 @@
-# process_pdfs.py
 from pathlib import Path
-import json
-from parser import extract_text_data
-from json_generator import build_json
+from parser import extract_pdf_data
+from json_generator import write_json_output
 
 def process_pdfs():
     input_dir = Path("/app/input")
     output_dir = Path("/app/output")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    for pdf_path in input_dir.glob("*.pdf"):
-        data = extract_text_data(pdf_path)
-        structured_output = build_json(data, pdf_path.stem)
-
-        output_file = output_dir / f"{pdf_path.stem}.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(structured_output, f, indent=2)
+    for pdf_file in input_dir.glob("*.pdf"):
+        try:
+            print(f"Processing {pdf_file.name}...")
+            data = extract_pdf_data(pdf_file)
+            output_file = output_dir / f"{pdf_file.stem}.json"
+            write_json_output(data, output_file)
+            print(f"✅ {output_file.name} generated.")
+        except Exception as e:
+            print(f"❌ Failed to process {pdf_file.name}: {e}")
 
 if __name__ == "__main__":
     process_pdfs()

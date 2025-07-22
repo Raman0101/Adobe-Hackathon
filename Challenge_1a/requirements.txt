@@ -1,1 +1,2 @@
-pdfplumber
+PyMuPDF==1.23.7
+jsonschema==4.22.0
