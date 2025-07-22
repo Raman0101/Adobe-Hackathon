@@ -19,64 +19,28 @@ The output is saved in a well-defined JSON format for each PDF.
 
 ---
 
-## 🛁 Folder Structure
+## 🛠️ Folder Structure
 
 ```
 Challenge_1a/
 ├── Dockerfile
-├── main.py                  # Core logic for PDF processing
-├── utils.py                 # Helper functions (e.g. title, outlines)
-├── input/                   # Input folder (read-only in container)
-│   └── file01.pdf
-├── output/                  # Output folder (where JSONs are saved)
-│   └── file01.json
+├── README.md
+├── json_generator.py         # Script to generate mock PDFs with outlines
+├── output_schema.json        # JSON schema for validation (optional)
+├── parser.py                 # PDF outline/title extractor logic
+├── process_pdfs.py           # Entry point script
 ├── requirements.txt
-└── README.md                # This file
+├── input/                    # Input PDFs
+│   └── file01.pdf
+└── output/                   # Output JSONs
+    └── file01.json
 ```
 
 ---
 
-## 🪖 Dockerized Execution
+## 🧪 Output Format
 
-### ✅ Build the Docker Image
-
-```bash
-docker build -t pdf-processor .
-```
-
-### ⚡ Run the Container
-
-```bash
-docker run --rm \
-  -v $(pwd)/input:/app/input:ro \
-  -v $(pwd)/output:/app/output \
-  --network none \
-  pdf-processor
-```
-
-> This command mounts the input and output folders into the container, disables internet access, and runs the processor.
-
----
-
-## ⏱ Performance Snapshot
-
-```bash
-Processing file01.pdf...
-✅ file01.json generated.
-
-real    0m0.339s
-user    0m0.009s
-sys     0m0.017s
-```
-
-* **Time Taken**: \~0.33s for a 50-page PDF
-* **Within Constraint**: ✔ Under 10s limit
-
----
-
-## 🔠 Output Schema
-
-Each output `.json` follows the structure:
+Each output `.json` conforms to this schema:
 
 ```json
 {
@@ -89,53 +53,93 @@ Each output `.json` follows the structure:
     },
     {
       "level": "2",
-      "text": "Chapter 1 - Section 1",
+      "text": "Section 1.1",
       "page": 2
     }
-    // ... more entries
   ]
 }
 ```
 
+You can validate this using the `output_schema.json` file.
+
 ---
 
-## 🔧 Dependencies
+## 🐳 Docker Usage
 
-Installed inside Docker via `requirements.txt`:
+### 🔧 Build Docker Image
 
-```txt
+```bash
+docker build -t pdf-processor .
+```
+
+### 🚀 Run the Container
+
+```bash
+docker run --rm \
+  -v $(pwd)/input:/app/input:ro \
+  -v $(pwd)/output:/app/output \
+  --network none \
+  pdf-processor
+```
+
+> Mounts local folders inside the container and ensures no internet usage.
+
+---
+
+## 🧠 How It Works
+
+* `process_pdfs.py`: Loops through all PDFs in `input/` and writes results to `output/`
+* `parser.py`: Extracts metadata title and outline using PyMuPDF
+* `json_generator.py`: (Optional) Script to generate test PDFs with outlines
+
+---
+
+## ⏱ Performance Snapshot
+
+For a **50-page PDF with outlines**:
+
+```
+Processing file01.pdf...
+✅ file01.json generated.
+
+real    0m0.339s
+user    0m0.009s
+sys     0m0.017s
+```
+
+Well under the required **10-second** constraint.
+
+---
+
+## 📦 Dependencies
+
+Installed via `requirements.txt`:
+
+```
 PyMuPDF==1.22.3
 ```
 
 ---
 
-## 🎨 Sample Input/Output
+## 🧪 Testing With Sample PDF
 
-### Input: `file01.pdf` (50 pages)
+You can generate a testable PDF using:
 
-PDF includes a hierarchical table of contents embedded as outline.
-
-### Output: `file01.json`
-
-```json
-{
-  "title": "Sample Document with TOC",
-  "outline": [
-    { "level": "1", "text": "Chapter 1", "page": 1 },
-    { "level": "2", "text": "Chapter 1 - Section 1", "page": 1 },
-    ...
-  ]
-}
+```bash
+python json_generator.py
 ```
+
+This creates a file like `outlined_50_pages.pdf` in your input folder with structured bookmarks.
 
 ---
 
-## 🧬 Additional Features
+## ✅ Features
 
-* Skips files with no outline gracefully
-* Robust handling of bookmarks with multiple depths
-* Title extracted directly from PDF metadata
-* Easily extensible for multiple input files
+* Clean, structured JSON output
+* Supports multiple input PDFs
+* Fully offline, Docker-safe
+* Scalable and fast
+* Auto skips PDFs with no outlines
 
 ---
 
@@ -150,9 +154,9 @@ cd Challenge_1a
 
 ### 2. Place PDFs
 
-Add your PDF files inside the `input/` directory.
+Put your input `.pdf` files into the `input/` folder.
 
-### 3. Build & Run Docker
+### 3. Run the Pipeline
 
 ```bash
 docker build -t pdf-processor .
@@ -173,12 +177,12 @@ MIT License
 
 ## 🙏 Acknowledgements
 
-* Adobe India Hackathon Team for the challenge
-* [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/) for fast PDF processing
+* Adobe India Hackathon Team
+* [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/)
 
 ---
 
-## 📢 Author
+## 👨‍💻 Author
 
 **Raman Kumar**
 GitHub: [@Raman0101](https://github.com/Raman0101)
