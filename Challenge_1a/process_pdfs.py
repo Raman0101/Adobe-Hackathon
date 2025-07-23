@@ -1,21 +1,21 @@
-from pathlib import Path
+import os
 from parser import extract_pdf_data
-from json_generator import write_json_output
+from json_generator import save_output_to_json
 
-def process_pdfs():
-    input_dir = Path("/app/input")
-    output_dir = Path("/app/output")
-    output_dir.mkdir(parents=True, exist_ok=True)
+INPUT_DIR = "/app/input"
+OUTPUT_DIR = "/app/output"
 
-    for pdf_file in input_dir.glob("*.pdf"):
-        try:
-            print(f"Processing {pdf_file.name}...")
-            data = extract_pdf_data(pdf_file)
-            output_file = output_dir / f"{pdf_file.stem}.json"
-            write_json_output(data, output_file)
-            print(f"✅ {output_file.name} generated.")
-        except Exception as e:
-            print(f"❌ Failed to process {pdf_file.name}: {e}")
+def process_all_pdfs():
+    for filename in os.listdir(INPUT_DIR):
+        if filename.endswith(".pdf"):
+            input_path = os.path.join(INPUT_DIR, filename)
+            output_filename = filename.replace(".pdf", ".json")
+            output_path = os.path.join(OUTPUT_DIR, output_filename)
+
+            print(f"[INFO] Processing {filename}...")
+            parsed_data = extract_pdf_data(input_path)
+            save_output_to_json(parsed_data, output_path)
+            print(f"[INFO] Saved to {output_filename}")
 
 if __name__ == "__main__":
-    process_pdfs()
+    process_all_pdfs()
