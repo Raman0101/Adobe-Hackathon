@@ -16,7 +16,7 @@ def run_pipeline(input_dir):
     config = load_input_config(input_json_path)
 
     print(f"[INFO] 📄 Extracting chunks from PDFs in {pdf_dir}...")
-    chunks = extract_all_chunks_from_folder(pdf_dir, config)
+    chunks = extract_all_chunks_from_folder(pdf_dir)
 
     print(f"[INFO] 🧠 Embedding document chunks...")
     embedded_chunks = embed_chunks(chunks)
