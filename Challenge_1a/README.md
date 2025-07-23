@@ -167,11 +167,6 @@ docker run --rm \
   pdf-processor
 ```
 
----
-
-## 📄 License
-
-MIT License
 
 ---
 
