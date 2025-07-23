@@ -1,93 +1,140 @@
-# Challenge 1b: Multi-Collection PDF Analysis
+# 🔍 Challenge 1b: Persona-Driven Document Intelligence
 
-## Overview
-Advanced PDF analysis solution that processes multiple document collections and extracts relevant content based on specific personas and use cases.
+## 🎯 Objective
+Build an intelligent document analysis system that extracts and ranks **relevant sections** from a collection of **PDFs**, based on a **persona** and a **job-to-be-done**.
 
-## Project Structure
+---
+
+## 📁 Folder Structure
 ```
 Challenge_1b/
-├── Collection 1/                    # Travel Planning
-│   ├── PDFs/                       # South of France guides
-│   ├── challenge1b_input.json      # Input configuration
-│   └── challenge1b_output.json     # Analysis results
-├── Collection 2/                    # Adobe Acrobat Learning
-│   ├── PDFs/                       # Acrobat tutorials
-│   ├── challenge1b_input.json      # Input configuration
-│   └── challenge1b_output.json     # Analysis results
-├── Collection 3/                    # Recipe Collection
-│   ├── PDFs/                       # Cooking guides
-│   ├── challenge1b_input.json      # Input configuration
-│   └── challenge1b_output.json     # Analysis results
-└── README.md
+├── Collection_1/
+│   ├── PDFs/                         # Input documents
+│   ├── challenge1b_input.json        # Input config (persona, job, doc list)
+│   └── challenge1b_output.json       # Output (auto-generated)
+├── main.py                           # Entry point
+├── input_parser.py                   # Parses input JSON and query
+├── pdf_reader.py                     # Reads and chunks PDF content
+├── chunk_embedder.py                 # Embeds chunks + query
+├── ranker.py                         # Ranks chunks by relevance
+├── output_writer.py                  # Builds final JSON output
+├── requirements.txt                  # Python dependencies
+├── Dockerfile                        # Container setup
+└── README.md                         # You are here
 ```
 
-## Collections
+---
 
-### Collection 1: Travel Planning
-- **Challenge ID**: round_1b_002
-- **Persona**: Travel Planner
-- **Task**: Plan a 4-day trip for 10 college friends to South of France
-- **Documents**: 7 travel guides
+## 🧠 Approach
 
-### Collection 2: Adobe Acrobat Learning
-- **Challenge ID**: round_1b_003
-- **Persona**: HR Professional
-- **Task**: Create and manage fillable forms for onboarding and compliance
-- **Documents**: 15 Acrobat guides
+1. **Input Parser** (`input_parser.py`)  
+   Reads persona, job, and document titles from `challenge1b_input.json`.
 
-### Collection 3: Recipe Collection
-- **Challenge ID**: round_1b_001
-- **Persona**: Food Contractor
-- **Task**: Prepare vegetarian buffet-style dinner menu for corporate gathering
-- **Documents**: 9 cooking guides
+2. **PDF Reader** (`pdf_reader.py`)  
+   Extracts clean text from PDFs and chunks it per section or paragraph.
 
-## Input/Output Format
+3. **Embedding Model** (`chunk_embedder.py`)  
+   Converts both query and content into semantic vectors using Sentence Transformers (`MiniLM` or similar ≤1GB model).
 
-### Input JSON Structure
+4. **Ranking Engine** (`ranker.py`)  
+   Uses cosine similarity to rank the most relevant document chunks.
+
+5. **Output Generator** (`output_writer.py`)  
+   Selects top N sections and refined text snippets, outputs `challenge1b_output.json`.
+
+---
+
+## 🛠️ Technologies Used
+
+- Python 3.10+
+- `pdfplumber` for PDF text extraction
+- `sentence-transformers` (MiniLM model)
+- `scikit-learn` for similarity scoring
+- Docker for environment consistency
+
+---
+
+## ⚙️ Usage Instructions
+
+### 🐳 Run with Docker
+
+Build the image:
+```bash
+docker build -t persona-doc-intel .
+```
+
+Run the solution:
+```bash
+docker run --rm -v $(pwd)/Collection_1:/app/Collection_1 persona-doc-intel Collection_1
+```
+
+Output will be saved in `Collection_1/challenge1b_output.json`.
+
+---
+
+## 📄 Input Format
+
+### challenge1b_input.json
 ```json
 {
   "challenge_info": {
-    "challenge_id": "round_1b_XXX",
-    "test_case_name": "specific_test_case"
+    "challenge_id": "round_1b_002",
+    "test_case_name": "travel_planner"
   },
-  "documents": [{"filename": "doc.pdf", "title": "Title"}],
-  "persona": {"role": "User Persona"},
-  "job_to_be_done": {"task": "Use case description"}
+  "documents": [
+    { "filename": "doc1.pdf", "title": "Doc 1" }
+  ],
+  "persona": { "role": "Travel Planner" },
+  "job_to_be_done": { "task": "Plan a 4-day trip to the South of France" }
 }
 ```
 
-### Output JSON Structure
+---
+
+## 📤 Output Format
+
+### challenge1b_output.json
 ```json
 {
   "metadata": {
-    "input_documents": ["list"],
-    "persona": "User Persona",
-    "job_to_be_done": "Task description"
+    "input_documents": ["doc1.pdf"],
+    "persona": "Travel Planner",
+    "job_to_be_done": "Plan a 4-day trip to the South of France",
+    "processing_timestamp": "2025-07-23T12:34:56.789Z"
   },
   "extracted_sections": [
     {
-      "document": "source.pdf",
-      "section_title": "Title",
+      "document": "doc1.pdf",
+      "section_title": "Things to Do",
       "importance_rank": 1,
-      "page_number": 1
+      "page_number": 3
     }
   ],
   "subsection_analysis": [
     {
-      "document": "source.pdf",
-      "refined_text": "Content",
-      "page_number": 1
+      "document": "doc1.pdf",
+      "refined_text": "Beach hopping, wine tasting, city walks...",
+      "page_number": 3
     }
   ]
 }
 ```
 
-## Key Features
-- Persona-based content analysis
-- Importance ranking of extracted sections
-- Multi-collection document processing
-- Structured JSON output with metadata
+---
+
+## ✅ Features
+
+- 🔍 **Persona-aware section selection**
+- 🧠 **Semantic similarity ranking**
+- 📄 **Multi-document support**
+- 🧩 **Clean JSON output with metadata**
+- ⚡ **Fast processing under 60s**
+- 📦 **CPU-only, ≤1GB model footprint**
 
 ---
 
-**Note**: This README provides a brief overview of the Challenge 1b solution structure based on available sample data. 
+## 👥 Authors
+
+- 🚀 Built by **Raman**
+- 🤝 Shout out to teammates **Ram** and **Rishabh**
+- 🏁 Submitted for **Adobe India Hackathon 2025 – Round 1B**
