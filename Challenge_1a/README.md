@@ -1,46 +1,96 @@
 # PDF Outline Extractor 📖
 
-A blazing-fast PDF processing solution built for **Adobe India Hackathon 2025 - Challenge 1a**. This project extracts structured data including **document title** and **table of contents (outline)** from PDF files and outputs it as a JSON file. Fully containerized and compliant with resource and performance constraints.
+A blazing-fast PDF processing solution developed for **Adobe India Hackathon 2025 - Challenge 1a**. It extracts structured data including the **document title** and **table of contents (outline)** from PDFs and outputs JSON files. Fully containerized, offline-compatible, and optimized under strict performance constraints.
 
 ---
 
-## 🌐 Overview
+## 🔍 Approach
 
-This solution parses a PDF file to extract:
+This solution processes all PDFs in the `/input` directory and generates corresponding structured `.json` files in the `/output` directory. It extracts:
+- The **document title**
+- A hierarchical **outline** (table of contents/bookmarks), including:
+  - `text`: heading text
+  - `level`: outline depth (hierarchy)
+  - `page`: page number where the section starts
 
-* **Title** of the document
-* **Hierarchical outline** (like bookmarks or ToC entries), including:
+It uses PyMuPDF to access internal PDF metadata and outline structure, then formats the extracted data to match a predefined schema.
 
-  * `text` (heading text)
-  * `level` (outline depth)
-  * `page` (starting page number)
-
-The output is saved in a well-defined JSON format for each PDF.
+**Key Features:**
+- Processes multiple PDFs in one go
+- Skips files without outlines
+- Fully offline and Dockerized
+- Meets all resource constraints:
+  - ≤200MB model size (no ML models used)
+  - ≤10 seconds for a 50-page PDF
+  - CPU-only execution
+  - ≤16GB RAM
 
 ---
 
-## 🛠️ Folder Structure
+## 📚 Models and Libraries Used
+
+This solution **does not use any heavy ML model**. It is built using the following Python library:
+
+- [`PyMuPDF`](https://pymupdf.readthedocs.io/en/latest/) (`fitz`) – For parsing PDF metadata and outlines
+
+Install dependencies using:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Dependencies (from `requirements.txt`):**
+
+```
+PyMuPDF==1.22.3
+```
+
+---
+
+## ⚙️ How to Build and Run the Solution
+
+> This section is for documentation only. The evaluation process uses the “Expected Execution” procedure.
+
+### 📁 Folder Structure
 
 ```
 Challenge_1a/
 ├── Dockerfile
 ├── README.md
-├── json_generator.py         # Script to generate mock PDFs with outlines
-├── output_schema.json        # JSON schema for validation (optional)
-├── parser.py                 # PDF outline/title extractor logic
-├── process_pdfs.py           # Entry point script
 ├── requirements.txt
-├── input/                    # Input PDFs
-│   └── file01.pdf
-└── output/                   # Output JSONs
-    └── file01.json
+├── process_pdfs.py         # Entry point script
+├── parser.py               # Core PDF parsing logic
+├── json_generator.py       # (Optional) Test PDF generator
+├── output_schema.json      # JSON schema definition
+├── input/                  # Input folder (place PDFs here)
+└── output/                 # Output folder (results saved here)
 ```
+
+### 🐳 Build Docker Image
+
+```bash
+docker build -t pdf-processor .
+```
+
+### 🐳 Run the Container
+
+```bash
+docker run --rm \
+  -v $(pwd)/input:/app/input:ro \
+  -v $(pwd)/output:/app/output \
+  --network none \
+  pdf-processor
+```
+
+- `input/`: place your input PDF files here.
+- `output/`: will contain extracted JSON outputs.
+- `--network none`: ensures full offline compliance.
 
 ---
 
 ## 🧪 Output Format
 
-Each output `.json` conforms to this schema:
+Each output `.json` file conforms to this schema:
 
 ```json
 {
@@ -60,124 +110,30 @@ Each output `.json` conforms to this schema:
 }
 ```
 
-You can validate this using the `output_schema.json` file.
+You can validate this structure using the provided `output_schema.json`.
 
 ---
 
-## 🐳 Docker Usage
+## ✅ Optional: Testing With Sample PDF
 
-### 🔧 Build Docker Image
-
-```bash
-docker build -t pdf-processor .
-```
-
-### 🚀 Run the Container
-
-```bash
-docker run --rm \
-  -v $(pwd)/input:/app/input:ro \
-  -v $(pwd)/output:/app/output \
-  --network none \
-  pdf-processor
-```
-
-> Mounts local folders inside the container and ensures no internet usage.
-
----
-
-## 🧠 How It Works
-
-* `process_pdfs.py`: Loops through all PDFs in `input/` and writes results to `output/`
-* `parser.py`: Extracts metadata title and outline using PyMuPDF
-* `json_generator.py`: (Optional) Script to generate test PDFs with outlines
-
----
-
-## ⏱ Performance Snapshot
-
-For a **50-page PDF with outlines**:
-
-```
-Processing file01.pdf...
-✅ file01.json generated.
-
-real    0m0.339s
-user    0m0.009s
-sys     0m0.017s
-```
-
-Well under the required **10-second** constraint.
-
----
-
-## 📦 Dependencies
-
-Installed via `requirements.txt`:
-
-```
-PyMuPDF==1.22.3
-```
-
----
-
-## 🧪 Testing With Sample PDF
-
-You can generate a testable PDF using:
+To test the system with a sample input:
 
 ```bash
 python json_generator.py
 ```
 
-This creates a file like `outlined_50_pages.pdf` in your input folder with structured bookmarks.
-
----
-
-## ✅ Features
-
-* Clean, structured JSON output
-* Supports multiple input PDFs
-* Fully offline, Docker-safe
-* Scalable and fast
-* Auto skips PDFs with no outlines
-
----
-
-## 🚀 Getting Started Locally
-
-### 1. Clone the Repo
-
-```bash
-git clone https://github.com/yourusername/Challenge_1a.git
-cd Challenge_1a
-```
-
-### 2. Place PDFs
-
-Put your input `.pdf` files into the `input/` folder.
-
-### 3. Run the Pipeline
-
-```bash
-docker build -t pdf-processor .
-docker run --rm \
-  -v $(pwd)/input:/app/input:ro \
-  -v $(pwd)/output:/app/output \
-  --network none \
-  pdf-processor
-```
-
+This generates a sample PDF (e.g., `outlined_50_pages.pdf`) with a mock table of contents inside the `input/` folder.
 
 ---
 
 ## 🙏 Acknowledgements
 
-* Adobe India Hackathon Team
-* [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/)
+- Adobe India Hackathon Team
+- [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/)
 
 ---
 
 ## 👨‍💻 Author
 
-**Raman Kumar**
+**Raman Kumar**  
 GitHub: [@Raman0101](https://github.com/Raman0101)
